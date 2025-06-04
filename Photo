@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Слайдер с фото-функцией</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .slideshow-container {
+            max-width: 800px;
+            position: relative;
+            margin: 0 auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .slide {
+            display: none;
+            width: 100%;
+        }
+        
+        .slide img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .fade {
+            animation-name: fade;
+            animation-duration: 1.5s;
+        }
+        
+        @keyframes fade {
+            from {opacity: 0.4}
+            to {opacity: 1}
+        }
+        
+        .prev, .next {
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            width: auto;
+            margin-top: -22px;
+            padding: 16px;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            transition: 0.6s ease;
+            border-radius: 0 3px 3px 0;
+            user-select: none;
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+        
+        .next {
+            right: 0;
+            border-radius: 3px 0 0 3px;
+        }
+        
+        .prev:hover, .next:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+        
+        .dots-container {
+            text-align: center;
+            padding: 15px;
+        }
+        
+        .dot {
+            cursor: pointer;
+            height: 12px;
+            width: 12px;
+            margin: 0 5px;
+            background-color: #bbb;
+            border-radius: 50%;
+            display: inline-block;
+            transition: background-color 0.6s ease;
+        }
+        
+        .active, .dot:hover {
+            background-color: #717171;
+        }
+        
+        .caption {
+            color: #f2f2f2;
+            font-size: 16px;
+            padding: 8px 12px;
+            position: absolute;
+            bottom: 8px;
+            width: 100%;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            box-sizing: border-box;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        /* Стили для блока камеры */
+        #camera-container {
+            margin: 20px auto;
+            max-width: 800px;
+            display: none; /* Скрыто по умолчанию */
+        }
+        
+        #camera {
+            width: 100%;
+            border-radius: 8px;
+        }
+        
+        #photo-result {
+            display: none;
+            margin: 20px auto;
+            max-width: 800px;
+            border-radius: 8px;
+        }
+        
+        #capture-btn {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        
+        #toggle-camera {
+            padding: 10px 20px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Интерактивный слайдер с камерой</h1>
+    
+    <!-- Слайдер -->
+    <div class="slideshow-container">
+        <div class="slide fade">
+            <img src="https://via.placeholder.com/800x400?text=Изображение+1" alt="Изображение 1">
+            <div class="caption">Изображение 1</div>
+        </div>
+        
+        <div class="slide fade">
+            <img src="https://via.placeholder.com/800x400?text=Изображение+2" alt="Изображение 2">
+            <div class="caption">Изображение 2</div>
+        </div>
+        
+        <div class="slide fade">
+            <img src="https://via.placeholder.com/800x400?text=Изображение+3" alt="Изображение 3">
+            <div class="caption">Изображение 3</div>
+        </div>
+        
+        <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+        <a class="next" onclick="plusSlides(1)">&#10095;</a>
+    </div>
+    
+    <div class="dots-container">
+        <span class="dot" onclick="currentSlide(1)"></span>
+        <span class="dot" onclick="currentSlide(2)"></span>
+        <span class="dot" onclick="currentSlide(3)"></span>
+    </div>
+
+    <!-- Блок камеры -->
+    <button id="toggle-camera">Включить камеру</button>
+    
+    <div id="camera-container">
+        <video id="camera" autoplay></video>
+        <canvas id="photo-result" width="800" height="450"></canvas>
+        <button id="capture-btn">Сделать фото</button>
+    </div>
+
+    <script>
+        // Слайдер
+        let slideIndex = 1;
+        showSlides(slideIndex);
+        
+        function plusSlides(n) {
+            showSlides(slideIndex += n);
+        }
+        
+        function currentSlide(n) {
+            showSlides(slideIndex = n);
+        }
+        
+        function showSlides(n) {
+            let i;
+            let slides = document.getElementsByClassName("slide");
+            let dots = document.getElementsByClassName("dot");
+            
+            if (n > slides.length) {
+                slideIndex = 1;
+            }
+            if (n < 1) {
+                slideIndex = slides.length;
+            }
+            
+            for (i = 0; i < slides.length; i++) {
+                slides[i].style.display = "none";
+            }
+            
+            for (i = 0; i < dots.length; i++) {
+                dots[i].className = dots[i].className.replace(" active", "");
+            }
+            
+            slides[slideIndex - 1].style.display = "block";
+            dots[slideIndex - 1].className += " active";
+        }
+        
+        // Автопрокрутка слайдера
+        setInterval(function() {
+            plusSlides(1);
+        }, 5000);
+
+        // Камера
+        const toggleCameraBtn = document.getElementById('toggle-camera');
+        const cameraContainer = document.getElementById('camera-container');
+        const video = document.getElementById('camera');
+        const canvas = document.getElementById('photo-result');
+        const captureBtn = document.getElementById('capture-btn');
+        let stream = null;
+
+        toggleCameraBtn.addEventListener('click', async () => {
+            if (stream) {
+                // Выключить камеру
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+                video.srcObject = null;
+                cameraContainer.style.display = 'none';
+                toggleCameraBtn.textContent = 'Включить камеру';
+                canvas.style.display = 'none';
+            } else {
+                // Включить камеру
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    video.srcObject = stream;
+                    cameraContainer.style.display = 'block';
+                    toggleCameraBtn.textContent = 'Выключить камеру';
+                } catch (err) {
+                    alert('Ошибка доступа к камере: ' + err.message);
+                }
+            }
+        });
+
+        captureBtn.addEventListener('click', () => {
+            if (stream) {
+                canvas.style.display = 'block';
+                const context = canvas.getContext('2d');
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                
+                // Здесь можно отправить фото на сервер
+                // const photoData = canvas.toDataURL('image/png');
+                // console.log(photoData);
+            }
+        });
+    </script>
+</body>
+</html>
